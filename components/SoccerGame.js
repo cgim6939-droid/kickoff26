@@ -29,7 +29,7 @@ const MAIN_TILES = [
   { id: '1p', title: '킥오프', en: 'KICK OFF', desc: 'AI 팀과 한 판 승부', big: true },
   { id: 'cup', title: '컵 대회', en: 'CUP', desc: '8강 토너먼트 우승에 도전' },
   { id: '2p', title: '로컬 대전', en: 'LOCAL MATCH', desc: '한 키보드로 친구와 대결' },
-  { id: 'multi', title: '멀티플레이', en: 'ONLINE', desc: '온라인으로 친구와 대결', soon: true },
+  { id: 'multi', title: '멀티플레이', en: 'ONLINE', desc: '방 코드로 친구와 1대1', soon: true },
   { id: 'cpu', title: '관전 모드', en: 'SPECTATE', desc: 'AI끼리 경기를 지켜보기' },
   { id: 'controls', title: '조작법', en: 'CONTROLS', desc: '키 배치 보기' },
 ];
@@ -112,6 +112,7 @@ export default function SoccerGame() {
     team: [clubIndex('TOT'), clubIndex('FCB')],
   });
   const [cup, setCup] = useState(null);
+  const [online, setOnline] = useState(null);      // { phase: creating|waiting|joining|connected|playing|closed|error, code, message }
 
   useEffect(() => {
     const rt = createRuntime({
@@ -119,6 +120,11 @@ export default function SoccerGame() {
       hudCanvas: hudRef.current,
       onPauseChange: setPaused,
       onResult: (summary, infos) => setResult({ summary, infos }),
+      onOnline: (o) => {
+        setOnline(o);
+        if (o.phase === 'playing') { setResult(null); setPaused(false); setScreen('playing'); }
+        else if (o.phase === 'closed') setScreen(sc => (sc === 'playing' ? 'online-lost' : sc === 'waiting' || sc === 'join' ? 'online' : sc));
+      },
     });
     rtRef.current = rt;
     return () => rt.destroy();
@@ -168,6 +174,7 @@ export default function SoccerGame() {
         <MainMenu
           onSelect={(id) => {
             if (id === 'controls') { setScreen('controls'); return; }
+            if (id === 'multi') { setScreen('online'); return; }
             setOpts(o => ({ ...o, mode: id }));
             setScreen('teams');
           }}
@@ -184,10 +191,37 @@ export default function SoccerGame() {
         <MatchSettings
           opts={opts} setOpts={setOpts} onBack={() => setScreen('lineup')}
           onStart={() => {
-            if (opts.mode === 'cup') { setCup(createCup(opts.team[0])); setScreen('cup'); }
+            if (opts.mode === 'host') { setOnline({ phase: 'creating' }); setScreen('waiting'); rtRef.current.hostOnline(opts); }
+            else if (opts.mode === 'cup') { setCup(createCup(opts.team[0])); setScreen('cup'); }
             else start();
           }}
         />
+      )}
+      {screen === 'online' && (
+        <OnlineMenu
+          onHost={() => { setOpts(o => ({ ...o, mode: 'host', size: '11' })); setScreen('teams'); }}
+          onJoin={() => { setOnline(null); setScreen('join'); }}
+          onBack={() => setScreen('main')}
+        />
+      )}
+      {screen === 'waiting' && (
+        <OnlineWaiting online={online} onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }} />
+      )}
+      {screen === 'join' && (
+        <OnlineJoin
+          online={online}
+          onJoin={(code) => { setOnline({ phase: 'joining' }); rtRef.current.joinOnline(code, { quality: opts.quality }); }}
+          onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }}
+        />
+      )}
+      {screen === 'online-lost' && (
+        <div className="fc-overlay dim">
+          <div className="fc-pause">
+            <div className="fc-eyebrow">ONLINE</div>
+            <h2>연결이 끊겼어요</h2>
+            <button className="fc-btn primary" onClick={() => { toMenu(); setOnline(null); }}>메인 메뉴</button>
+          </div>
+        </div>
       )}
       {screen === 'cup' && cup && (
         <CupScreen cup={cup} onPlay={() => start(cup)} onMenu={() => { setCup(null); setScreen('main'); }} />
@@ -208,7 +242,9 @@ export default function SoccerGame() {
 
       {result && (opts.mode === 'cup' && cup
         ? <Result result={result} cupRound={ROUND_NAMES[cup.round]} onAgain={continueCup} againLabel="대진표 보기 ›" onMenu={() => { setCup(null); toMenu(); }} />
-        : <Result result={result} onAgain={() => start()} onMenu={toMenu} />)}
+        : online && online.phase === 'playing'
+          ? <Result result={result} onAgain={() => { toMenu(); setOnline(null); }} againLabel="메인 메뉴 ›" onMenu={() => { toMenu(); setOnline(null); }} />
+          : <Result result={result} onAgain={() => start()} onMenu={toMenu} />)}
     </div>
   );
 }
@@ -234,10 +270,8 @@ function TitleScreen({ onStart }) {
 }
 
 // ================= 메인 메뉴 =================
-function MainMenu({ onSelect: pick }) {
+function MainMenu({ onSelect }) {
   const [focus, setFocus] = useState(0);
-  const [notice, setNotice] = useState(false);
-  const onSelect = (id) => { if (id === 'multi') { setNotice(true); setTimeout(() => setNotice(false), 2200); return; } pick(id); };
   useKeys((e) => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { setFocus(f => (f + 1) % MAIN_TILES.length); e.preventDefault(); }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { setFocus(f => (f + MAIN_TILES.length - 1) % MAIN_TILES.length); e.preventDefault(); }
@@ -262,13 +296,101 @@ function MainMenu({ onSelect: pick }) {
               <span className="tile-title">{t.title}</span>
               <span className="tile-desc">{t.desc}</span>
               {t.big && <span className="tile-ball">⚽</span>}
-              {t.soon && <span className="tile-soon">COMING SOON</span>}
+              {t.soon && <span className="tile-soon">ONLINE</span>}
             </button>
           ))}
         </div>
       </div>
-      {notice && <div className="menu-toast">온라인 멀티플레이는 준비 중이에요. 곧 만나요!</div>}
       <FooterHints hints={[['←→', '이동'], ['Enter', '선택']]} />
+    </div>
+  );
+}
+
+// ================= 온라인 (방 코드) =================
+function OnlineMenu({ onHost, onJoin, onBack }) {
+  const [focus, setFocus] = useState(0);
+  useKeys((e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') setFocus(f => 1 - f);
+    else if (e.key === 'Enter') (focus === 0 ? onHost : onJoin)();
+    else if (e.key === 'Escape' || e.key === 'Backspace') onBack();
+    else return;
+    e.preventDefault();
+  });
+  return (
+    <div className="fc-overlay main">
+      <TopBar crumbs={['홈', '멀티플레이']} />
+      <div className="main-wrap">
+        <div className="fc-eyebrow">ONLINE 1 vs 1</div>
+        <h1 className="fc-h1">멀티플레이</h1>
+        <div className="tiles online-tiles">
+          <button className={`tile big ${focus === 0 ? 'focus' : ''}`} onMouseEnter={() => setFocus(0)} onClick={onHost}>
+            <span className="tile-en">HOST</span><span className="tile-title">방 만들기</span>
+            <span className="tile-desc">팀을 고르고 방 코드를 친구에게 알려 주세요</span><span className="tile-ball">⚽</span>
+          </button>
+          <button className={`tile big ${focus === 1 ? 'focus' : ''}`} onMouseEnter={() => setFocus(1)} onClick={onJoin}>
+            <span className="tile-en">JOIN</span><span className="tile-title">코드로 참가</span>
+            <span className="tile-desc">친구가 알려 준 5자리 코드를 입력하세요</span><span className="tile-ball">🎮</span>
+          </button>
+        </div>
+        <p className="online-note">방장의 컴퓨터가 경기를 계산하고 친구는 그 화면을 받아서 봐요. 인터넷 상태가 좋을수록 부드러워요.</p>
+      </div>
+      <div className="bottom-actions"><button className="fc-btn" onClick={onBack}>뒤로</button></div>
+      <FooterHints hints={[['←→', '이동'], ['Enter', '선택'], ['Esc', '뒤로']]} />
+    </div>
+  );
+}
+
+function OnlineWaiting({ online, onCancel }) {
+  const code = online && online.code;
+  const [copied, setCopied] = useState(false);
+  useKeys((e) => { if (e.key === 'Escape') { onCancel(); e.preventDefault(); } });
+  const copy = () => { try { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch (e) { /* 복사 불가 */ } };
+  return (
+    <div className="fc-overlay main">
+      <TopBar crumbs={['홈', '멀티플레이', '대기']} />
+      <div className="online-box">
+        <div className="fc-eyebrow">ROOM CODE</div>
+        {online && online.phase === 'error'
+          ? <><h2>{online.message}</h2><button className="fc-btn primary" onClick={onCancel}>돌아가기</button></>
+          : <>
+            <div className="room-code">{code || '· · · · ·'}</div>
+            <p>{code ? '친구에게 이 코드를 알려 주세요. 친구가 들어오면 바로 경기가 시작돼요.' : '방을 만드는 중…'}</p>
+            <div className="online-actions">
+              <button className="fc-btn primary" disabled={!code} onClick={copy}>{copied ? '복사됨 ✓' : '코드 복사'}</button>
+              <button className="fc-btn" onClick={onCancel}>취소</button>
+            </div>
+            <div className="dots"><i /><i /><i /></div>
+          </>}
+      </div>
+    </div>
+  );
+}
+
+function OnlineJoin({ online, onJoin, onCancel }) {
+  const [code, setCode] = useState('');
+  const busy = online && (online.phase === 'joining' || online.phase === 'connected');
+  const go = () => { if (code.length === 5 && !busy) onJoin(code); };
+  return (
+    <div className="fc-overlay main">
+      <TopBar crumbs={['홈', '멀티플레이', '참가']} />
+      <div className="online-box">
+        <div className="fc-eyebrow">JOIN ROOM</div>
+        <h2>방 코드를 입력하세요</h2>
+        <input
+          className="code-input" value={code} maxLength={5} autoFocus placeholder="ABCDE" spellCheck={false}
+          onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5))}
+          onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') go(); if (e.key === 'Escape') onCancel(); }}
+        />
+        <p className={online && online.phase === 'error' ? 'err' : ''}>
+          {online && online.phase === 'error' ? online.message
+            : online && online.phase === 'connected' ? '연결됐어요! 방장이 시작하길 기다리는 중…'
+              : online && online.phase === 'joining' ? '연결하는 중…' : '친구(방장)가 만든 5자리 코드예요'}
+        </p>
+        <div className="online-actions">
+          <button className="fc-btn primary" disabled={code.length !== 5 || busy} onClick={go}>참가하기</button>
+          <button className="fc-btn" onClick={onCancel}>뒤로</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -329,7 +451,7 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
       e.preventDefault();
     });
 
-  const sideNames = { '1p': ['1P', 'CPU'], '2p': ['1P', '2P'], cpu: ['CPU', 'CPU'], cup: ['1P', 'CUP'] }[opts.mode];
+  const sideNames = { '1p': ['1P', 'CPU'], '2p': ['1P', '2P'], cpu: ['CPU', 'CPU'], cup: ['1P', 'CUP'], host: ['나', '친구'] }[opts.mode];
 
   return (
     <div className="fc-overlay teams-screen">
@@ -477,7 +599,7 @@ function TeamPanel({ side, active, label, controller, clubIdx, otherIdx, onActiv
 function LineupScreen({ opts, setOpts, onBack, onNext }) {
   const [side, setSide] = useState(0);
   const sides = opts.mode === 'cup' ? [0] : [0, 1];
-  const sideNames = { '1p': ['1P', 'CPU'], '2p': ['1P', '2P'], cpu: ['CPU', 'CPU'], cup: ['1P'] }[opts.mode] || ['HOME', 'AWAY'];
+  const sideNames = { '1p': ['1P', 'CPU'], '2p': ['1P', '2P'], cpu: ['CPU', 'CPU'], cup: ['1P'], host: ['나', '친구'] }[opts.mode] || ['HOME', 'AWAY'];
   const idx = opts.team[side];
   const setLineup = (clubIdx, v) => setOpts(o => ({ ...o, lineup: { ...(o.lineup || {}), [clubIdx]: v } }));
   useKeys((e) => {
@@ -914,7 +1036,7 @@ function CupScreen({ cup, onPlay, onMenu }) {
 }
 
 // ================= 공통 =================
-function modeName(m) { return { '1p': '킥오프', '2p': '로컬 대전', cpu: '관전 모드', cup: '컵 대회' }[m]; }
+function modeName(m) { return { '1p': '킥오프', '2p': '로컬 대전', cpu: '관전 모드', cup: '컵 대회', host: '멀티플레이' }[m]; }
 
 function TopBar({ crumbs }) {
   return (
