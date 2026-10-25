@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>킥오프 사커</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- 메인 메뉴 -->
+  <div id="menu" class="overlay">
+    <div class="panel">
+      <h1>⚽ 킥오프 사커</h1>
+
+      <div class="row">
+        <label>모드</label>
+        <div class="seg" data-opt="mode">
+          <button data-v="1p" class="on">1P vs AI</button>
+          <button data-v="2p">2P 대전</button>
+          <button data-v="cpu">AI 관전</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>인원</label>
+        <div class="seg" data-opt="size">
+          <button data-v="5">5 vs 5</button>
+          <button data-v="7" class="on">7 vs 7</button>
+          <button data-v="11">11 vs 11</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>경기 시간</label>
+        <div class="seg" data-opt="time">
+          <button data-v="120">2분</button>
+          <button data-v="240" class="on">4분</button>
+          <button data-v="360">6분</button>
+        </div>
+      </div>
+      <div class="row" id="diffRow">
+        <label>난이도</label>
+        <div class="seg" data-opt="diff">
+          <button data-v="easy">쉬움</button>
+          <button data-v="normal" class="on">보통</button>
+          <button data-v="hard">어려움</button>
+        </div>
+      </div>
+
+      <div class="teams">
+        <div class="team-pick" data-side="0">
+          <div class="side-label" id="sideLabel0">HOME · 1P</div>
+          <div class="picker">
+            <button class="arrow" data-d="-1">◀</button>
+            <div class="team-card"><span class="swatch"></span><span class="tname"></span></div>
+            <button class="arrow" data-d="1">▶</button>
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team-pick" data-side="1">
+          <div class="side-label" id="sideLabel1">AWAY · AI</div>
+          <div class="picker">
+            <button class="arrow" data-d="-1">◀</button>
+            <div class="team-card"><span class="swatch"></span><span class="tname"></span></div>
+            <button class="arrow" data-d="1">▶</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="startBtn" class="primary">경기 시작</button>
+
+      <div id="controls" class="controls"></div>
+    </div>
+  </div>
+
+  <!-- 일시정지 -->
+  <div id="pause" class="overlay hidden">
+    <div class="panel small">
+      <h2>일시정지</h2>
+      <button id="resumeBtn" class="primary">계속하기</button>
+      <button id="restartBtn">다시 시작</button>
+      <button id="quitBtn">메뉴로</button>
+      <div id="pauseControls" class="controls"></div>
+    </div>
+  </div>
+
+  <!-- 경기 결과 -->
+  <div id="result" class="overlay hidden">
+    <div class="panel">
+      <h2>경기 종료</h2>
+      <div id="resultBody"></div>
+      <div class="btns">
+        <button id="againBtn" class="primary">다시 하기</button>
+        <button id="menuBtn">메뉴로</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/engine.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

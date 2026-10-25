@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+
+photo_src
+.env*
+*.blend1
+blender/__pycache__

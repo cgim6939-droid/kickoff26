@@ -1,0 +1,107 @@
+{
+ "clips": {
+  "idle": {
+   "duration": 2.0,
+   "loop": true
+  },
+  "walk": {
+   "duration": 1.0667,
+   "loop": true,
+   "refSpeed": 1.501
+  },
+  "run": {
+   "duration": 0.5333,
+   "loop": true,
+   "refSpeed": 7.031
+  },
+  "kick": {
+   "duration": 0.7,
+   "loop": false
+  },
+  "touch_R": {
+   "duration": 0.3,
+   "loop": false
+  },
+  "touch_L": {
+   "duration": 0.3,
+   "loop": false
+  },
+  "charge": {
+   "duration": 0.0667,
+   "loop": false
+  },
+  "slide": {
+   "duration": 1.0,
+   "loop": false
+  },
+  "tackle": {
+   "duration": 0.6667,
+   "loop": false
+  },
+  "dive_R": {
+   "duration": 1.4667,
+   "loop": false
+  },
+  "dive_L": {
+   "duration": 1.4667,
+   "loop": false
+  },
+  "celebrate": {
+   "duration": 1.0,
+   "loop": true
+  },
+  "header": {
+   "duration": 0.8,
+   "loop": false
+  },
+  "feint": {
+   "duration": 0.5333,
+   "loop": false
+  },
+  "celebrate_pump": {
+   "duration": 0.7,
+   "loop": true
+  },
+  "celebrate_slide": {
+   "duration": 1.1333,
+   "loop": false
+  },
+  "throw_in": {
+   "duration": 0.0667,
+   "loop": true
+  },
+  "gk_hold": {
+   "duration": 0.0667,
+   "loop": true
+  },
+  "gk_ready": {
+   "duration": 1.6,
+   "loop": true
+  },
+  "gk_catch": {
+   "duration": 0.6,
+   "loop": false
+  },
+  "gk_jump": {
+   "duration": 0.8333,
+   "loop": false
+  },
+  "gk_low": {
+   "duration": 0.7333,
+   "loop": false
+  },
+  "gk_throw": {
+   "duration": 0.7333,
+   "loop": false
+  },
+  "fall": {
+   "duration": 1.4667,
+   "loop": false
+  },
+  "stumble": {
+   "duration": 0.6667,
+   "loop": false
+  }
+ },
+ "fps": 30
+}

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 144">
+  <defs>
+    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7dffb8"/>
+      <stop offset="0.45" stop-color="#00ff85"/>
+      <stop offset="1" stop-color="#04f5ff"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9fff4"/>
+      <stop offset="0.25" stop-color="#00ff85"/>
+      <stop offset="0.75" stop-color="#04c8ff"/>
+      <stop offset="1" stop-color="#0a5cff"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16294d"/>
+      <stop offset="0.55" stop-color="#0a1328"/>
+      <stop offset="1" stop-color="#03060f"/>
+    </linearGradient>
+    <linearGradient id="kfill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#b8ffe0"/>
+      <stop offset="1" stop-color="#00ff85"/>
+    </linearGradient>
+    <radialGradient id="ballg" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c9d3e6"/>
+    </radialGradient>
+    <clipPath id="inner"><path d="M64 15 L104 27 V68 C104 94 88 110 64 121 C40 110 24 94 24 68 V27 Z"/></clipPath>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- 방패 바깥 테두리 + 안쪽 -->
+  <path d="M64 6 L112 20 V67 C112 97 93 117 64 130 C35 117 16 97 16 67 V20 Z" fill="url(#frame)" filter="url(#glow)"/>
+  <path d="M64 15 L104 27 V68 C104 94 88 110 64 121 C40 110 24 94 24 68 V27 Z" fill="url(#bg)"/>
+  <g clip-path="url(#inner)">
+    <!-- 대각선 줄무늬 + 하단 잔디빛 -->
+    <g opacity="0.16" fill="#00ff85">
+      <path d="M0 40 L128 0 V12 L0 52 Z"/><path d="M0 62 L128 22 V34 L0 74 Z"/><path d="M0 84 L128 44 V56 L0 96 Z"/>
+    </g>
+    <ellipse cx="64" cy="126" rx="52" ry="22" fill="#00ff85" opacity="0.22"/>
+    <path d="M24 100 Q64 84 104 100 V130 H24 Z" fill="#00ff85" opacity="0.12"/>
+    <!-- 스피드 라인 -->
+    <g stroke="#04f5ff" stroke-linecap="round" opacity="0.8">
+      <path d="M26 54 H44" stroke-width="2.4"/><path d="M30 63 H46" stroke-width="1.6" opacity="0.7"/><path d="M26 72 H40" stroke-width="2" opacity="0.55"/>
+    </g>
+  </g>
+
+  <!-- K (기울어진 굵은 글자) -->
+  <g transform="skewX(-9) translate(15 0)" filter="url(#glow)">
+    <path d="M40 40 H55 V63 L73 40 H91 L69 66 L93 99 H74 L58 76 L55 79 V99 H40 Z" fill="url(#kfill)"/>
+    <path d="M40 40 H55 V63 L73 40 H91 L69 66 L93 99 H74 L58 76 L55 79 V99 H40 Z" fill="none" stroke="#00ff85" stroke-width="1.2" opacity="0.8"/>
+  </g>
+
+  <!-- 공 (K의 위쪽 팔 끝에서 날아가는 모습) -->
+  <g transform="translate(92 38)">
+    <circle r="11" fill="url(#ballg)" stroke="#0a1328" stroke-width="1.6"/>
+    <path d="M0 -5.2 L4.9 -1.6 L3 4.2 H-3 L-4.9 -1.6 Z" fill="#0a1328"/>
+    <g stroke="#0a1328" stroke-width="1.5" stroke-linecap="round"><path d="M0 -5.2 V-10.6"/><path d="M4.9 -1.6 L10.2 -3.2"/><path d="M3 4.2 L6.4 8.7"/><path d="M-3 4.2 L-6.4 8.7"/><path d="M-4.9 -1.6 L-10.2 -3.2"/></g>
+  </g>
+  <path d="M66 46 Q78 38 82 38" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+  <!-- 별과 26 -->
+  <g fill="#ffd34d" filter="url(#glow)">
+    <path d="M64 21 l1.9 4.2 4.6 .5 -3.4 3.1 1 4.5 -4.1 -2.4 -4.1 2.4 1 -4.5 -3.4 -3.1 4.6 -.5 z" transform="translate(0 -1) scale(1)"/>
+  </g>
+  <text x="64" y="112" text-anchor="middle" font-family="Impact, 'Arial Black', sans-serif" font-style="italic" font-size="19" fill="url(#neon)" stroke="#03060f" stroke-width="0.8" letter-spacing="2">26</text>
+</svg>
