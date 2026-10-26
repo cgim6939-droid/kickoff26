@@ -33,28 +33,35 @@ def vtx(name, x, y, z, rx, ry=None):
     V[name] = (Vector((x, y, z)), (rx, rx if ry is None else ry))
 
 
-vtx('pelvis', 0, 0, 0.98, 0.155, 0.115)
-vtx('waist', 0, 0, 1.10, 0.135, 0.105)
-vtx('chest', 0, -0.006, 1.27, 0.178, 0.122)
-vtx('ctop', 0, 0, 1.41, 0.185, 0.108)
-vtx('neck', 0, 0, 1.51, 0.062)
+vtx('pelvis', 0, 0, 0.97, 0.160, 0.120)
+vtx('waist', 0, 0, 1.09, 0.128, 0.102)
+vtx('ribs', 0, -0.004, 1.19, 0.160, 0.115)
+vtx('chest', 0, -0.008, 1.30, 0.192, 0.130)
+vtx('ctop', 0, 0, 1.415, 0.205, 0.112)
+vtx('neck', 0, 0, 1.51, 0.066)
 vtx('head', 0, -0.006, 1.692, 0.102, 0.108)
 vtx('headtop', 0, -0.006, 1.762, 0.078, 0.088)
-EDGES += [('pelvis', 'waist'), ('waist', 'chest'), ('chest', 'ctop'), ('ctop', 'neck'),
+EDGES += [('pelvis', 'waist'), ('waist', 'ribs'), ('ribs', 'chest'), ('chest', 'ctop'), ('ctop', 'neck'),
           ('neck', 'head'), ('head', 'headtop')]
 for side, sx in (('L', 1), ('R', -1)):
-    vtx('sh' + side, sx * 0.205, 0, 1.425, 0.060)
-    vtx('el' + side, sx * 0.335, 0, 1.16, 0.047)
-    vtx('wr' + side, sx * 0.450, -0.05, 0.915, 0.037)
-    vtx('hd' + side, sx * 0.492, -0.062, 0.835, 0.042)
-    vtx('hp' + side, sx * 0.095, 0, 0.93, 0.105)
-    vtx('th' + side, sx * 0.099, -0.01, 0.72, 0.095)
-    vtx('kn' + side, sx * 0.100, -0.02, 0.50, 0.064)
-    vtx('an' + side, sx * 0.105, 0.0, 0.105, 0.046)
-    vtx('toe' + side, sx * 0.105, -0.17, 0.050, 0.047)
-    vtx('heel' + side, sx * 0.105, 0.070, 0.056, 0.040)
-    EDGES += [('ctop', 'sh' + side), ('sh' + side, 'el' + side), ('el' + side, 'wr' + side), ('wr' + side, 'hd' + side),
-              ('pelvis', 'hp' + side), ('hp' + side, 'th' + side), ('th' + side, 'kn' + side), ('kn' + side, 'an' + side),
+    vtx('sh' + side, sx * 0.228, 0, 1.43, 0.068)          # 어깨(삼각근)
+    vtx('el' + side, sx * 0.350, 0, 1.165, 0.050)
+    vtx('fa' + side, sx * 0.402, -0.025, 1.04, 0.049)      # 팔뚝
+    vtx('wr' + side, sx * 0.452, -0.05, 0.915, 0.036)
+    vtx('hd' + side, sx * 0.492, -0.062, 0.835, 0.046, 0.030)
+    vtx('fg' + side, sx * 0.506, -0.070, 0.790, 0.028, 0.022)
+    vtx('hp' + side, sx * 0.098, 0, 0.93, 0.110)
+    vtx('th' + side, sx * 0.102, -0.012, 0.74, 0.114)      # 허벅지(대퇴사두근)
+    vtx('mt' + side, sx * 0.101, -0.016, 0.61, 0.090)
+    vtx('kn' + side, sx * 0.100, -0.022, 0.50, 0.066)
+    vtx('ca' + side, sx * 0.102, 0.010, 0.365, 0.064)      # 종아리
+    vtx('an' + side, sx * 0.105, 0.0, 0.105, 0.043)
+    vtx('toe' + side, sx * 0.105, -0.175, 0.052, 0.050, 0.044)
+    vtx('heel' + side, sx * 0.105, 0.072, 0.058, 0.042)
+    EDGES += [('ctop', 'sh' + side), ('sh' + side, 'el' + side), ('el' + side, 'fa' + side), ('fa' + side, 'wr' + side),
+              ('wr' + side, 'hd' + side), ('hd' + side, 'fg' + side),
+              ('pelvis', 'hp' + side), ('hp' + side, 'th' + side), ('th' + side, 'mt' + side), ('mt' + side, 'kn' + side),
+              ('kn' + side, 'ca' + side), ('ca' + side, 'an' + side),
               ('an' + side, 'toe' + side), ('an' + side, 'heel' + side)]
 
 bm = bmesh.new()
@@ -89,9 +96,9 @@ bpy.data.objects.remove(base)
 MATS = ['Skin', 'Jersey', 'Shorts', 'Socks', 'Boots', 'Hair', 'Trim', 'Gloves', 'Eyes', 'Sclera', 'Lips', 'Brow', 'Beard']
 MI = {n: i for i, n in enumerate(MATS)}
 SEG = {}  # 선분 이름 -> (a, b, 그룹)
-GROUP_BY_PREFIX = {'sh': 'uarm', 'el': 'farm', 'wr': 'hand', 'hp': 'thigh', 'th': 'thigh', 'kn': 'shin', 'an': 'foot'}
+GROUP_BY_PREFIX = {'sh': 'uarm', 'el': 'farm', 'fa': 'farm', 'wr': 'hand', 'hd': 'hand', 'hp': 'thigh', 'th': 'thigh', 'mt': 'thigh', 'kn': 'shin', 'ca': 'shin', 'an': 'foot'}
 for a, b in EDGES:
-    g = {'pelvis-waist': 'torso', 'waist-chest': 'torso', 'chest-ctop': 'torso', 'ctop-neck': 'neck',
+    g = {'pelvis-waist': 'torso', 'waist-ribs': 'torso', 'ribs-chest': 'torso', 'chest-ctop': 'torso', 'ctop-neck': 'neck',
          'neck-head': 'neck', 'head-headtop': 'head'}.get(a + '-' + b)
     if g is None:
         g = 'clav' if a == 'ctop' else 'hip' if a == 'pelvis' else GROUP_BY_PREFIX[a[:2]]
@@ -104,7 +111,8 @@ def seg_dist(c, a, b):
     return (c - (a + ab * t)).length, t
 
 
-WAIST_Z, HEM_Z, COLLAR = 1.05, 0.70, (1.485, 1.548)
+WAIST_Z, HEM_Z, COLLAR = 1.05, 0.69, (1.485, 1.548)
+SOCK_Z = (0.4605, 0.4289)       # 양말 윗단(살색→줄무늬→양말) 경계 높이
 
 
 def material_for(c):
@@ -136,7 +144,7 @@ def material_for(c):
     if g == 'shin':
         if z < 0.122:
             return 'Boots'
-        return 'Skin' if t < 0.10 else ('Trim' if t < 0.18 else 'Socks')
+        return 'Skin' if z > SOCK_Z[0] else ('Trim' if z > SOCK_Z[1] else 'Socks')
     return 'Boots'
 
 
@@ -183,6 +191,29 @@ def add_ball(name, center, radius, scale, mat):
     for f in {f for v in vs for f in v.link_faces}:
         f.material_index = MI[mat]
 
+
+# 축구화 디테일: 밑창 판 + 스터드(징) + 발등 끈 (경기장에서 가까이 보일 때 선수답게)
+def add_boot_details():
+    for sx in (1, -1):
+        x = sx * 0.105
+        sole = bmesh.ops.create_cube(bm, size=1.0)
+        bmesh.ops.transform(bm, matrix=Matrix.Translation(Vector((x, -0.045, 0.042))) @ Matrix.Diagonal((0.082, 0.262, 0.014, 1.0)), verts=sole['verts'])
+        for f in {f for v in sole['verts'] for f in v.link_faces}:
+            f.material_index = MI['Boots']
+        for (sy, sz) in ((-0.14, 0.0), (-0.085, 0.0), (-0.02, 0.0), (0.045, 0.0), (0.075, 0.0)):
+            for ox in (-0.026, 0.026):
+                c = bmesh.ops.create_cone(bm, cap_ends=True, segments=6, radius1=0.012, radius2=0.008, depth=0.020)
+                bmesh.ops.transform(bm, matrix=Matrix.Translation(Vector((x + ox, sy, 0.022))), verts=c['verts'])
+                for f in {f for v in c['verts'] for f in v.link_faces}:
+                    f.material_index = MI['Boots']
+        for k in range(3):                       # 신발끈
+            lace = bmesh.ops.create_cube(bm, size=1.0)
+            bmesh.ops.transform(bm, matrix=Matrix.Translation(Vector((x, -0.075 - k * 0.028, 0.098 - k * 0.003))) @ Matrix.Diagonal((0.052, 0.008, 0.006, 1.0)), verts=lace['verts'])
+            for f in {f for v in lace['verts'] for f in v.link_faces}:
+                f.material_index = MI['Trim']
+
+
+add_boot_details()
 
 # 머리(얼굴/눈/눈썹/귀/입술/목): head.py
 import head as headmod
