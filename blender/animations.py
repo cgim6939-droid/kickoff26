@@ -447,6 +447,63 @@ def build(ao, scene):
     st2 = ({**two({}, (-30, 40, -30)), 'Spine1': d(10), 'Hips': d(4), 'RightUpLeg': d(-40), 'RightLeg': d(55), 'LeftUpLeg': d(8), 'LeftLeg': d(25)}, {})
     b.author('stumble', {0: ({}, {}), 4: st1, 9: st2, 15: ({'Spine1': d(4)}, {}), 20: ({}, {})}, ground=True)
 
+    # ---------------- 추가 동작: 짧은 패스 / 발리슛 / 가슴 트래핑 / 낙담 / 손 허리 / 키퍼 펀트 ----------------
+    # 인사이드 짧은 패스 (공 접촉 = 5프레임): 슛보다 작고 빠른 스윙
+    b.author('pass', {
+        0: ({}, {}),
+        3: ({'RightUpLeg': d(22), 'RightLeg': d(55), 'RightFoot': d(10), 'LeftUpLeg': d(-14), 'LeftLeg': d(28), 'Spine1': d(5), 'Hips': d(0, -6, 0),
+             'LeftArm': d(-22, 0, -38), 'RightArm': d(12, 0, 32), 'LeftForeArm': d(-25), 'RightForeArm': d(-25)}, {}),
+        5: ({'RightUpLeg': d(-38), 'RightLeg': d(14), 'RightFoot': d(18), 'LeftUpLeg': d(-12), 'LeftLeg': d(30), 'Spine1': d(9, -6, 0), 'Hips': d(0, 8, 0),
+             'LeftArm': d(-18, 0, -42), 'RightArm': d(14, 0, 36), 'LeftForeArm': d(-25), 'RightForeArm': d(-25)}, {}),
+        9: ({'RightUpLeg': d(-50), 'RightLeg': d(10), 'LeftLeg': d(22), 'Spine1': d(7), 'Hips': d(0, 6, 0), 'LeftArm': d(-12, 0, -30), 'RightArm': d(8, 0, 26)}, {}),
+        15: ({'RightUpLeg': d(-16), 'RightLeg': d(24), 'LeftLeg': d(14), 'Spine1': d(3)}, {}),
+        18: ({}, {}),
+    }, ground=True)
+    # 공중볼 발리슛 (공 접촉 = 8프레임): 몸을 옆으로 눕히며 다리를 높이 휘두름
+    v_load = ({'RightUpLeg': d(25), 'RightLeg': d(80), 'LeftUpLeg': d(-30), 'LeftLeg': d(48), 'Hips': d(0, -10, 14), 'Spine1': d(0, -8, -10), 'Spine2': d(-4, 0, -8),
+               'LeftArm': d(-40, 0, -70), 'RightArm': d(10, 0, 60), 'LeftForeArm': d(-20), 'RightForeArm': d(-20), 'Head': d(6)}, {'Hips': (0, 0.06, 0)})
+    v_hit = ({'RightUpLeg': d(-82), 'RightLeg': d(8), 'RightFoot': d(30), 'LeftUpLeg': d(-18), 'LeftLeg': d(36), 'Hips': d(0, 14, 24), 'Spine1': d(6, -12, -16), 'Spine2': d(0, 0, -10),
+              'LeftArm': d(-30, 0, -80), 'RightArm': d(20, 0, 70), 'LeftForeArm': d(-20), 'RightForeArm': d(-20), 'Head': d(8)}, {'Hips': (0, 0.20, 0)})
+    v_after = ({**v_hit[0], 'RightUpLeg': d(-60), 'RightLeg': d(40), 'Hips': d(0, 12, 28)}, {'Hips': (0, 0.14, 0)})
+    v_land = ({'RightUpLeg': d(-30), 'RightLeg': d(55), 'LeftUpLeg': d(-28), 'LeftLeg': d(60), 'Spine1': d(8), 'LeftArm': d(-15, 0, -40), 'RightArm': d(12, 0, 38)}, {})
+    b.begin('volley')
+    for fr, (r_, l_), gnd in [(0, ({}, {}), True), (4, v_load, False), (8, v_hit, False), (12, v_after, False), (17, v_land, True), (24, ({}, {}), True)]:
+        b.frame_pose(fr, r_, l_, ground=gnd)
+    b.end()
+    # 가슴 트래핑 (공 접촉 = 4프레임): 가슴을 내밀어 공을 죽이고 몸을 접음
+    b.author('chest_trap', {
+        0: ({}, {}),
+        3: ({'Spine': d(-6), 'Spine1': d(-12), 'Spine2': d(-10), 'Head': d(-14), 'LeftArm': d(8, 0, -62), 'RightArm': d(8, 0, 62), 'LeftForeArm': d(-30), 'RightForeArm': d(-30),
+             'LeftUpLeg': d(-16), 'RightUpLeg': d(-10), 'LeftLeg': d(34), 'RightLeg': d(22)}, {}),
+        6: ({'Spine': d(4), 'Spine1': d(14), 'Spine2': d(10), 'Head': d(8), 'LeftArm': d(-18, 0, -40), 'RightArm': d(-18, 0, 40), 'LeftForeArm': d(-50), 'RightForeArm': d(-50),
+             'LeftUpLeg': d(-22), 'RightUpLeg': d(-18), 'LeftLeg': d(44), 'RightLeg': d(36)}, {}),
+        12: ({'Spine1': d(5), 'LeftLeg': d(18), 'RightLeg': d(16)}, {}),
+        16: ({}, {}),
+    }, ground=True)
+    # 낙담 (실점/놓침): 손으로 머리를 감싸고 고개를 숙임 (반복)
+    dej = {'Spine': d(8), 'Spine1': d(14), 'Spine2': d(8), 'Head': d(24), 'LeftArm': d(-150, 0, -26), 'RightArm': d(-150, 0, 26), 'LeftForeArm': d(-115), 'RightForeArm': d(-115),
+           'LeftUpLeg': d(-8), 'RightUpLeg': d(-8), 'LeftLeg': d(14), 'RightLeg': d(14)}
+    dej2 = {**dej, 'Spine1': d(18), 'Head': d(30), 'Hips': d(2)}
+    b.author('dejected', {0: (dej, {}), 12: (dej2, {}), 24: (dej, {})}, ground=True, loop=True)
+    # 숨 고르기 (재시작 대기 중): 상체를 숙이고 손을 무릎에 얹음 (반복, 숨쉬는 흔들림)
+    hips1 = {'Spine': d(16), 'Spine1': d(26), 'Spine2': d(14), 'Head': d(-16), 'LeftArm': d(-18, 0, -10), 'RightArm': d(-18, 0, 10), 'LeftForeArm': d(-8), 'RightForeArm': d(-8),
+             'LeftUpLeg': d(-32, 0, -6), 'RightUpLeg': d(-32, 0, 6), 'LeftLeg': d(46), 'RightLeg': d(46), 'LeftFoot': d(-10), 'RightFoot': d(-10)}
+    hips2 = {**hips1, 'Spine1': d(31), 'Spine2': d(17), 'Head': d(-20)}
+    b.author('hips', {0: (hips1, {}), 30: (hips2, {}), 60: (hips1, {})}, ground=True, loop=True)
+    # 키퍼 펀트 (손에서 떨어뜨려 차기, 공 접촉 = 8프레임)
+    p_hold = {'LeftArm': d(-45, 0, 8), 'RightArm': d(-45, 0, -8), 'LeftForeArm': d(-100, 0, -25), 'RightForeArm': d(-100, 0, 25), 'Spine1': d(6), 'Spine2': d(6), 'Head': d(-6),
+              'LeftUpLeg': d(-10), 'RightUpLeg': d(-10), 'LeftLeg': d(22), 'RightLeg': d(22)}
+    b.author('gk_punt', {
+        0: (p_hold, {}),
+        4: ({'LeftArm': d(-62, 0, -8), 'RightArm': d(-62, 0, 8), 'LeftForeArm': d(-30), 'RightForeArm': d(-30), 'RightUpLeg': d(18), 'RightLeg': d(40), 'LeftUpLeg': d(-14), 'LeftLeg': d(30),
+             'Spine1': d(8), 'Hips': d(0, -6, 0)}, {}),
+        8: ({'RightUpLeg': d(-84), 'RightLeg': d(6), 'RightFoot': d(28), 'LeftUpLeg': d(-14), 'LeftLeg': d(34), 'LeftArm': d(-20, 0, -62), 'RightArm': d(12, 0, 52), 'Spine1': d(-6, 10, 0),
+             'Spine2': d(-4), 'Hips': d(0, 14, 0), 'Head': d(4)}, {}),
+        13: ({'RightUpLeg': d(-96), 'RightLeg': d(14), 'LeftLeg': d(30), 'LeftArm': d(-14, 0, -56), 'RightArm': d(14, 0, 48), 'Spine1': d(-4), 'Hips': d(0, 10, 0)}, {}),
+        20: ({'RightUpLeg': d(-30), 'RightLeg': d(40)}, {}),
+        24: ({}, {}),
+    }, ground=True)
+
     # ---------------- 메타데이터 저장 ----------------
     meta_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public', 'models', 'player_meta.json'))
     os.makedirs(os.path.dirname(meta_path), exist_ok=True)

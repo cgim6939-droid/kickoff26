@@ -101,6 +101,30 @@
   "stumble": {
    "duration": 0.6667,
    "loop": false
+  },
+  "pass": {
+   "duration": 0.6,
+   "loop": false
+  },
+  "volley": {
+   "duration": 0.8,
+   "loop": false
+  },
+  "chest_trap": {
+   "duration": 0.5333,
+   "loop": false
+  },
+  "dejected": {
+   "duration": 0.8,
+   "loop": true
+  },
+  "hips": {
+   "duration": 2.0,
+   "loop": true
+  },
+  "gk_punt": {
+   "duration": 0.8,
+   "loop": false
   }
  },
  "fps": 30
