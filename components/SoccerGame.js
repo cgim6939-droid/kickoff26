@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createRuntime } from '@/lib/soccer/runtime';
 import { CONTROL_GUIDE } from '@/lib/soccer/teams';
 import { LEAGUES, CLUBS, clubIndex, clubStars, quickResult, penaltyShootout } from '@/lib/soccer/clubs';
-import { lineupFor, suggestTactics, formationList, STYLES, STYLE_ORDER, ROSTER_PICK } from '@/lib/soccer/formations';
+import { lineupFor, suggestTactics, formationList, STYLES, STYLE_ORDER, ROSTER_PICK, autoOrder } from '@/lib/soccer/formations';
 import { resolveLook } from '@/lib/soccer/looks';
 
 const SETTINGS = {
@@ -406,7 +406,9 @@ const SLOT_ROLE = { GK: 'GK', CB: 'DF', LB: 'DF', RB: 'DF', LWB: 'DF', RWB: 'DF'
 // 라인업: 편집한 값이 있으면 그것, 없으면 AI 추천
 function lineupOf(opts, clubIdx) {
   const club = CLUBS[clubIdx], sug = suggestTactics(club, 11), e = (opts.lineup && opts.lineup[clubIdx]) || {};
-  return { formation: e.formation || sug.formation, style: e.style || sug.style, order: e.order || ROSTER_PICK[11].slice() };
+  const formation = e.formation || sug.formation;
+  // 편집하지 않았으면 대형에 맞춰 선수들의 본래 포지션대로 자리 배정
+  return { formation, style: e.style || sug.style, order: e.order || autoOrder(club.players, lineupFor(11, formation).map(x => x.slot), ROSTER_PICK[11].slice(), club.tags) };
 }
 
 function TeamSelect({ opts, setOpts, onBack, onNext }) {
@@ -668,13 +670,13 @@ function LineupEditor({ club, value, onChange }) {
           <div className="editor-side">
             <h4>포메이션</h4>
             <div className="chips">
-              {formationList(11).map(f => <button key={f} className={f === formation ? 'on' : ''} onClick={() => onChange({ ...value, formation: f })}>{f}</button>)}
+              {formationList(11).map(f => <button key={f} className={f === formation ? 'on' : ''} onClick={() => onChange({ ...value, formation: f, order: autoOrder(club.players, lineupFor(11, f).map(x => x.slot), value.order, club.tags) })}>{f}</button>)}
             </div>
             <h4>전술</h4>
             <div className="chips">
               {STYLE_ORDER.map(x => <button key={x} className={x === style ? 'on' : ''} onClick={() => onChange({ ...value, style: x })}>{STYLES[x].label}</button>)}
             </div>
-            <button className="fc-btn reset" onClick={() => { const sug = suggestTactics(club, 11); onChange({ formation: sug.formation, style: sug.style, order: ROSTER_PICK[11].slice() }); setSel(null); }}>↺ 추천 라인업으로</button>
+            <button className="fc-btn reset" onClick={() => { const sug = suggestTactics(club, 11); onChange({ formation: sug.formation, style: sug.style, order: autoOrder(club.players, lineupFor(11, sug.formation).map(x => x.slot), ROSTER_PICK[11].slice(), club.tags) }); setSel(null); }}>↺ 추천 라인업으로</button>
             <p className="editor-tip">선수를 누르고 → 바꿀 선수(경기장 위 또는 후보)를 누르면 자리가 바뀌어요. 테두리가 <b>주황색</b>이면 본래 포지션이 아닌 자리예요.</p>
           </div>
           <div className="editor-pitch lineup-pitch">
