@@ -218,7 +218,7 @@ export default function SoccerGame() {
         />
       )}
       {screen === 'waiting' && (
-        <OnlineWaiting online={online} onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }} />
+        <OnlineWaiting online={online} onStartNow={() => rtRef.current.hostStartNow()} onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }} />
       )}
       {screen === 'join' && (
         <OnlineJoin
@@ -231,6 +231,7 @@ export default function SoccerGame() {
         <GuestPick
           online={online}
           onSubmit={(idx, lineup) => { rtRef.current.sendPick(idx, lineup); setOnline(o => ({ ...o, phase: 'ready' })); }}
+          onSelect={(idx, lineup) => rtRef.current.sendSel(idx, lineup)}
           onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }}
         />
       )}
@@ -371,7 +372,7 @@ function OnlineMenu({ onHost, onJoin, onBack }) {
   );
 }
 
-function OnlineWaiting({ online, onCancel }) {
+function OnlineWaiting({ online, onCancel, onStartNow }) {
   const code = online && online.code;
   const [copied, setCopied] = useState(false);
   useKeys((e) => { if (e.key === 'Escape') { onCancel(); e.preventDefault(); } });
@@ -387,7 +388,8 @@ function OnlineWaiting({ online, onCancel }) {
             <div className="room-code">{code || '· · · · ·'}</div>
             <p>{!code ? '방을 만드는 중…' : online.phase === 'lobby' ? '친구가 입장했어요! 친구가 자기 팀을 고르는 중이에요. 고르면 바로 경기가 시작돼요.' : '친구에게 이 코드를 알려 주세요. 친구가 들어와서 팀을 고르면 경기가 시작돼요.'}</p>
             <div className="online-actions">
-              <button className="fc-btn primary" disabled={!code} onClick={copy}>{copied ? '복사됨 ✓' : '코드 복사'}</button>
+              {online.phase === 'lobby' && <button className="fc-btn primary" onClick={onStartNow}>지금 바로 시작 ›</button>}
+              <button className={`fc-btn ${online.phase === 'lobby' ? '' : 'primary'}`} disabled={!code} onClick={copy}>{copied ? '복사됨 ✓' : '코드 복사'}</button>
               <button className="fc-btn" onClick={onCancel}>취소</button>
             </div>
             <div className="dots"><i /><i /><i /></div>
@@ -986,7 +988,7 @@ function FriendInfo() {
 }
 
 // 코드를 입력해 들어온 손님이 자기 팀(과 라인업)을 고르는 화면
-function GuestPick({ online, onSubmit, onCancel }) {
+function GuestPick({ online, onSubmit, onSelect, onCancel }) {
   const hostIdx = online.hostTeam;
   const host = CLUBS[hostIdx];
   const [idx, setIdx] = useState(hostIdx === clubIndex('TOT') ? clubIndex('FCB') : clubIndex('TOT'));
@@ -998,6 +1000,8 @@ function GuestPick({ online, onSubmit, onCancel }) {
   const cycleTeam = (d) => { const ids = free(leagueOf(idx)); const cur = Math.max(0, ids.indexOf(idx)); setIdx(ids[(cur + d + ids.length) % ids.length]); };
   const cycleLeague = (d) => { const li = (leagueOf(idx) + d + LEAGUES.length) % LEAGUES.length; setIdx(free(li)[0]); };
   const submit = () => { if (!waiting) onSubmit(idx, lineups[idx] || null); };
+  // 고르는 중인 팀을 방장에게 계속 알려 둠 (방장이 먼저 시작하면 이 팀으로 시작)
+  useEffect(() => { onSelect && onSelect(idx, lineups[idx] || null); }, [idx, lineups]);
   useKeys((e) => {
     if (waiting) { if (e.key === 'Escape') onCancel(); return; }
     if (step === 0) {
