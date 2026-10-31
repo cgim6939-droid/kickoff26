@@ -61,7 +61,7 @@ lib/soccer/
   runtime.js         게임 루프, 입력, HUD, 리플레이, 온라인 방장/손님 처리
   net.js             PeerJS 기반 방 코드 접속
 public/
-  models/player.glb  선수 모델(뼈대 + 동작 + 머리/수염 변형)
+  models/player.glb  선수 모델(뼈대 + 동작 + 머리/수염 변형), player_low.glb = 가벼운 모델(그래픽 보통/낮음에서 사용, PLAYER_LOD=0.5로 빌드)
   faces_real/        선수 얼굴 사진 (위키 사진을 얼굴 인식으로 잘라 160px)
   faces/             사진이 없는 선수용 Blender 3D 얼굴 렌더
   crests/            구단 엠블럼

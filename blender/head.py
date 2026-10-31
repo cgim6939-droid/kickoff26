@@ -136,12 +136,14 @@ def normal_at(h, th, use_feat=True):
 
 
 # ----- 격자(고리 × 각도) -----
+import os as _os
+LOD = float(_os.environ.get('PLAYER_LOD', '1'))      # 1 = 원본, 0.5 = 가벼운 모델(경기 화면용)
 N_RING = 52
 def ring_heights():
     # 입/턱 근처를 촘촘하게 (입술 모양을 살리려고)
     hs = []
     for a, b, step in ((0.0, 0.03, 0.006), (0.03, 0.075, 0.0028), (0.075, 0.16, 0.0053), (0.16, 0.226, 0.0094)):
-        n = max(1, int(round((b - a) / step)))
+        n = max(1, int(round((b - a) / (step / LOD))))
         for i in range(n):
             hs.append(a + (b - a) * i / n)
     hs.append(0.226)
@@ -150,8 +152,8 @@ def ring_heights():
 
 
 def thetas():
-    back = 12
-    front = 40
+    back = max(5, int(12 * LOD))
+    front = max(16, int(40 * LOD))
     out = []
     # 뒤(-pi..-1.4) → 앞(-1.4..1.4) → 뒤(1.4..pi)
     for i in range(back):
@@ -212,7 +214,7 @@ def surface_at(x, h):
 
 
 def add_sphere(bm, center, radius, scale, mi, segs=(14, 10), rot=None):
-    r = bmesh.ops.create_uvsphere(bm, u_segments=segs[0], v_segments=segs[1], radius=radius)
+    r = bmesh.ops.create_uvsphere(bm, u_segments=max(6, int(segs[0] * LOD)), v_segments=max(4, int(segs[1] * LOD)), radius=radius)
     vs = r['verts']
     M = Matrix.Translation(Vector(center))
     if rot is not None:
@@ -404,8 +406,9 @@ def hair_thickness(style, h, th):
 
 
 # 껍질(머리카락/수염)은 머리 본체보다 촘촘한 격자를 써서 가장자리가 매끈하게 보이게 함
-HS_FINE = [i * 0.0042 for i in range(int(H_TOP / 0.0042))] + [H_TOP]
-THS_FINE = [-math.pi + 2 * math.pi * i / 80 for i in range(80)]
+HS_FINE = [i * (0.0042 / LOD) for i in range(int(H_TOP / (0.0042 / LOD)))] + [H_TOP]
+_NF = max(32, int(80 * LOD))
+THS_FINE = [-math.pi + 2 * math.pi * i / _NF for i in range(_NF)]
 
 
 def shell(bm, mi, mask_fn, thick_fn, hs=None, ths=None):

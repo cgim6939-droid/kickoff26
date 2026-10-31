@@ -16,7 +16,8 @@ from mathutils import Vector, Matrix
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 BLEND = os.path.join(HERE, "player.blend")
-GLB = os.path.normpath(os.path.join(HERE, "..", "public", "models", "player.glb"))
+LOD = float(os.environ.get("PLAYER_LOD", "1"))      # 0.5로 돌리면 가벼운 모델(player_low.glb)
+GLB = os.path.normpath(os.path.join(HERE, "..", "public", "models", "player.glb" if LOD >= 0.99 else "player_low.glb"))
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -84,8 +85,8 @@ m.use_x_symmetry = m.use_y_symmetry = m.use_z_symmetry = False
 m.branch_smoothing = 0.5
 m.use_smooth_shade = True
 s = base.modifiers.new('Subsurf', 'SUBSURF')
-s.levels = 2
-s.render_levels = 2
+s.levels = 2 if LOD > 0.75 else 1
+s.render_levels = s.levels
 dg = bpy.context.evaluated_depsgraph_get()
 body = bpy.data.meshes.new_from_object(base.evaluated_get(dg))
 bpy.data.objects.remove(base)
@@ -380,7 +381,8 @@ try:
 except ImportError:
     print("(animations.py 없음: 동작 없이 저장)")
 
-bpy.ops.wm.save_as_mainfile(filepath=BLEND)
+if LOD >= 0.99:
+    bpy.ops.wm.save_as_mainfile(filepath=BLEND)
 os.makedirs(os.path.dirname(GLB), exist_ok=True)
 bpy.ops.object.select_all(action='DESELECT')
 player.select_set(True)
