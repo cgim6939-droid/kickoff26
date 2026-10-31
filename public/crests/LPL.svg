@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" width="330" height="390">
+  <defs>
+    <linearGradient id="pur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b2b8a"/><stop offset="1" stop-color="#220a3d"/></linearGradient>
+    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9dffcb"/><stop offset="0.5" stop-color="#00ff85"/><stop offset="1" stop-color="#04c8ff"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset="0.5" stop-color="#f5c842"/><stop offset="1" stop-color="#a87400"/></linearGradient>
+  </defs>
+  <path d="M110 6 L206 30 V122 C206 190 164 232 110 254 C56 232 14 190 14 122 V30 Z" fill="url(#neon)"/>
+  <path d="M110 16 L196 38 V122 C196 184 158 222 110 242 C62 222 24 184 24 122 V38 Z" fill="url(#pur)"/>
+  <path d="M62 82 L72 52 L92 72 L110 42 L128 72 L148 52 L158 82 Z" fill="url(#gold)" stroke="#6b4a00" stroke-width="1.5"/>
+  <rect x="62" y="82" width="96" height="9" rx="2" fill="url(#gold)"/>
+  <circle cx="72" cy="52" r="4" fill="#fff3b0"/><circle cx="110" cy="42" r="4.5" fill="#fff3b0"/><circle cx="148" cy="52" r="4" fill="#fff3b0"/>
+  <circle cx="110" cy="136" r="34" fill="#fff" stroke="url(#neon)" stroke-width="4"/>
+  <path d="M110 118 l14 10 -5 16 h-18 l-5 -16z" fill="#220a3d"/>
+  <g stroke="#220a3d" stroke-width="3" stroke-linecap="round"><path d="M110 118 V104"/><path d="M124 128 L138 124"/><path d="M119 144 L127 156"/><path d="M101 144 L93 156"/><path d="M96 128 L82 124"/></g>
+  <path d="M40 120 l14 -4 -6 12 12 -3 -18 22 4 -16 -10 3z" fill="url(#neon)"/>
+  <path d="M180 120 l-14 -4 6 12 -12 -3 18 22 -4 -16 10 3z" fill="url(#neon)"/>
+  <path d="M26 186 H194 L184 208 H36Z" fill="url(#neon)"/>
+  <text x="110" y="202" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-size="16" letter-spacing="2" fill="#16062a">PREMIER</text>
+  <text x="110" y="234" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-size="22" letter-spacing="3" fill="url(#neon)" stroke="#16062a" stroke-width="0.8">LEGENDS</text>
+</svg>

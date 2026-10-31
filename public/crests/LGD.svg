@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" width="330" height="390">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset="0.35" stop-color="#f5c842"/><stop offset="0.7" stop-color="#b8860b"/><stop offset="1" stop-color="#7a5200"/></linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2540"/><stop offset="1" stop-color="#05070f"/></linearGradient>
+    <radialGradient id="gl" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#ffe9a0"/><stop offset="1" stop-color="#9a6a00"/></radialGradient>
+  </defs>
+  <path d="M110 6 L206 30 V122 C206 190 164 232 110 254 C56 232 14 190 14 122 V30 Z" fill="url(#gold)"/>
+  <path d="M110 16 L196 38 V122 C196 184 158 222 110 242 C62 222 24 184 24 122 V38 Z" fill="url(#bg)"/>
+  <g fill="url(#gold)">
+    <path d="M110 30 l4.2 9.2 10 1.1 -7.5 6.8 2.2 9.9 -8.9 -5.1 -8.9 5.1 2.2 -9.9 -7.5 -6.8 10 -1.1z"/>
+    <path transform="translate(-12 4) scale(0.8)" d="M110 30 l4.2 9.2 10 1.1 -7.5 6.8 2.2 9.9 -8.9 -5.1 -8.9 5.1 2.2 -9.9 -7.5 -6.8 10 -1.1z"/>
+    <path transform="translate(56 4) scale(0.8)" d="M110 30 l4.2 9.2 10 1.1 -7.5 6.8 2.2 9.9 -8.9 -5.1 -8.9 5.1 2.2 -9.9 -7.5 -6.8 10 -1.1z"/>
+  </g>
+  <g fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round">
+    <path d="M62 170 C40 150 38 118 52 96"/><path d="M158 170 C180 150 182 118 168 96"/>
+  </g>
+  <g fill="url(#gold)">
+    <ellipse cx="46" cy="130" rx="9" ry="4.5" transform="rotate(-70 46 130)"/><ellipse cx="44" cy="112" rx="9" ry="4.5" transform="rotate(-50 44 112)"/><ellipse cx="52" cy="150" rx="9" ry="4.5" transform="rotate(-85 52 150)"/>
+    <ellipse cx="174" cy="130" rx="9" ry="4.5" transform="rotate(70 174 130)"/><ellipse cx="176" cy="112" rx="9" ry="4.5" transform="rotate(50 176 112)"/><ellipse cx="168" cy="150" rx="9" ry="4.5" transform="rotate(85 168 150)"/>
+  </g>
+  <circle cx="110" cy="112" r="40" fill="url(#gl)" stroke="#fff3b0" stroke-width="2"/>
+  <g fill="none" stroke="#3a2600" stroke-width="2" opacity="0.8">
+    <ellipse cx="110" cy="112" rx="40" ry="14"/><ellipse cx="110" cy="112" rx="16" ry="40"/><path d="M110 72 V152 M70 112 H150"/>
+  </g>
+  <circle cx="110" cy="112" r="14" fill="#fff"/><path d="M110 103 l8 6 -3 9 h-10 l-3 -9z" fill="#0b1020"/>
+  <path d="M30 176 H190 L180 198 H40Z" fill="url(#gold)"/>
+  <text x="110" y="192" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-size="17" letter-spacing="3" fill="#1a1200">ALL-TIME</text>
+  <text x="110" y="232" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-size="38" fill="url(#gold)" stroke="#05070f" stroke-width="1">XI</text>
+</svg>

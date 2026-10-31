@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" width="330" height="390">
+  <defs>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4a52"/><stop offset="1" stop-color="#a30e18"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6fe0"/><stop offset="1" stop-color="#0a2a6b"/></linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d7dde8"/></linearGradient>
+  </defs>
+  <path d="M110 6 L206 30 V122 C206 190 164 232 110 254 C56 232 14 190 14 122 V30 Z" fill="url(#red)"/>
+  <path d="M110 16 L196 38 V122 C196 184 158 222 110 242 C62 222 24 184 24 122 V38 Z" fill="url(#bg)"/>
+  <g transform="translate(110 108)">
+    <circle r="46" fill="url(#blue)"/>
+    <path d="M-46 0 A46 46 0 0 1 46 0 A23 23 0 0 1 0 0 A23 23 0 0 0 -46 0Z" fill="url(#red)"/>
+    <circle r="46" fill="none" stroke="#111" stroke-width="2.5"/>
+  </g>
+  <g fill="#111">
+    <g transform="translate(46 56) rotate(-45)"><rect x="-12" y="-6" width="24" height="3"/><rect x="-12" y="-1.5" width="24" height="3"/><rect x="-12" y="3" width="24" height="3"/></g>
+    <g transform="translate(174 56) rotate(45)"><rect x="-12" y="-6" width="10" height="3"/><rect x="2" y="-6" width="10" height="3"/><rect x="-12" y="-1.5" width="24" height="3"/><rect x="-12" y="3" width="10" height="3"/><rect x="2" y="3" width="10" height="3"/></g>
+    <g transform="translate(46 160) rotate(45)"><rect x="-12" y="-6" width="10" height="3"/><rect x="2" y="-6" width="10" height="3"/><rect x="-12" y="-1.5" width="10" height="3"/><rect x="2" y="-1.5" width="10" height="3"/><rect x="-12" y="3" width="10" height="3"/><rect x="2" y="3" width="10" height="3"/></g>
+    <g transform="translate(174 160) rotate(-45)"><rect x="-12" y="-6" width="24" height="3"/><rect x="-12" y="-1.5" width="10" height="3"/><rect x="2" y="-1.5" width="10" height="3"/><rect x="-12" y="3" width="24" height="3"/></g>
+  </g>
+  <path d="M26 176 H194 L184 198 H36Z" fill="url(#blue)"/>
+  <text x="110" y="192" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-size="16" letter-spacing="3" fill="#ffffff">KOREA</text>
+  <text x="110" y="228" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-size="24" letter-spacing="3" fill="#a30e18" stroke="#ffffff" stroke-width="0.6">LEGENDS</text>
+</svg>
