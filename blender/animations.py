@@ -504,6 +504,36 @@ def build(ao, scene):
         24: ({}, {}),
     }, ground=True)
 
+    # ---------------- 추가 동작 2: 크로스(긴 킥) / 몸으로 공 지키기 / 세리머니 2종 ----------------
+    # 크로스·롱패스 (공 접촉 = 6프레임): 큰 백스윙, 몸을 젖히며 높이 차올림
+    b.author('cross', {
+        0: ({}, {}),
+        4: ({'RightUpLeg': d(34), 'RightLeg': d(78), 'RightFoot': d(10), 'LeftUpLeg': d(-14), 'LeftLeg': d(30), 'Spine1': d(-4), 'Hips': d(0, -10, 0),
+             'LeftArm': d(-32, 0, -52), 'RightArm': d(18, 0, 46), 'LeftForeArm': d(-25), 'RightForeArm': d(-25), 'Head': d(6)}, {}),
+        6: ({'RightUpLeg': d(-56), 'RightLeg': d(16), 'RightFoot': d(34), 'LeftUpLeg': d(-16), 'LeftLeg': d(32), 'Spine1': d(-8, -10, 0), 'Hips': d(0, 14, 0),
+             'LeftArm': d(-26, 0, -60), 'RightArm': d(22, 0, 52), 'Head': d(4)}, {}),
+        10: ({'RightUpLeg': d(-86), 'RightLeg': d(8), 'RightFoot': d(30), 'LeftUpLeg': d(-12), 'LeftLeg': d(26), 'Spine1': d(-10, -14, 0), 'Hips': d(0, 20, 0),
+              'LeftArm': d(-18, 0, -66), 'RightArm': d(26, 0, 58)}, {}),
+        16: ({'RightUpLeg': d(-40), 'RightLeg': d(36), 'LeftLeg': d(16), 'Spine1': d(-2)}, {}),
+        22: ({}, {}),
+    }, ground=True)
+    # 몸으로 공 지키기: 몸을 숙이고 한쪽 팔을 벌려 수비수를 막음 (반복)
+    sh1 = {'Spine': d(8), 'Spine1': d(20), 'Spine2': d(10), 'Head': d(-10), 'Hips': d(0, 0, 4),
+           'LeftArm': d(8, 0, -88), 'LeftForeArm': d(-28), 'RightArm': d(-38, 0, 28), 'RightForeArm': d(-70),
+           'LeftUpLeg': d(-30, 0, -18), 'RightUpLeg': d(-34, 0, 14), 'LeftLeg': d(54), 'RightLeg': d(60), 'LeftFoot': d(-12), 'RightFoot': d(-14)}
+    sh2 = {**sh1, 'Hips': d(0, 0, -4), 'Spine1': d(23), 'LeftArm': d(10, 0, -92)}
+    b.author('shield', {0: (sh1, {}), 14: (sh2, {}), 28: (sh1, {})}, ground=True, loop=True)
+    # 세리머니: 비행기 (팔을 활짝, 몸을 좌우로 기울임)
+    pl1 = {'LeftArm': d(0, 0, -86), 'RightArm': d(0, 0, 86), 'LeftForeArm': d(-6), 'RightForeArm': d(-6), 'Spine1': d(6, 0, 12), 'Spine2': d(2, 0, 8), 'Head': d(-6, 0, -6),
+           'LeftUpLeg': d(-14), 'RightUpLeg': d(-14), 'LeftLeg': d(26), 'RightLeg': d(26)}
+    pl2 = {**pl1, 'Spine1': d(6, 0, -12), 'Spine2': d(2, 0, -8), 'Head': d(-6, 0, 6)}
+    b.author('celebrate_plane', {0: (pl1, {}), 12: (pl2, {}), 24: (pl1, {})}, ground=True, loop=True)
+    # 세리머니: 하늘 가리키기 (한 손은 위로, 한 손은 가슴에)
+    sk1 = {'RightArm': d(-176, 0, -4), 'RightForeArm': d(-4), 'LeftArm': d(-40, 0, 12), 'LeftForeArm': d(-112), 'Head': d(-34), 'Spine': d(-4), 'Spine1': d(-8), 'Spine2': d(-6),
+           'LeftUpLeg': d(-12), 'RightUpLeg': d(-12), 'LeftLeg': d(22), 'RightLeg': d(22)}
+    sk2 = {**sk1, 'Head': d(-28), 'Spine1': d(-5), 'RightArm': d(-168, 0, -6)}
+    b.author('celebrate_sky', {0: (sk1, {}), 15: (sk2, {}), 30: (sk1, {})}, ground=True, loop=True)
+
     # ---------------- 메타데이터 저장 ----------------
     meta_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public', 'models', 'player_meta.json'))
     os.makedirs(os.path.dirname(meta_path), exist_ok=True)

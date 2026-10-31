@@ -125,6 +125,22 @@
   "gk_punt": {
    "duration": 0.8,
    "loop": false
+  },
+  "cross": {
+   "duration": 0.7333,
+   "loop": false
+  },
+  "shield": {
+   "duration": 0.9333,
+   "loop": true
+  },
+  "celebrate_plane": {
+   "duration": 0.8,
+   "loop": true
+  },
+  "celebrate_sky": {
+   "duration": 1.0,
+   "loop": true
   }
  },
  "fps": 30

@@ -82,7 +82,7 @@ bash blender/rebuild.sh <미리보기 폴더> views     # 몸·뼈대·동작 �
 bash blender/render_faces.sh                      # (blender/faces_input.json 기준) 3D 얼굴 렌더
 ```
 
-- `build_player.py`(몸 + 뼈대 + 가중치), `animations.py`(동작: 달리기, 짧은 패스, 슛, 발리, 가슴 트래핑, 태클, 넘어짐, 헤딩, 세리머니/낙담, 숨 고르기, 키퍼 선방/던지기/펀트 등), `head.py`(머리/머리카락/수염)
+- `build_player.py`(몸 + 뼈대 + 가중치), `animations.py`(동작: 달리기, 짧은 패스, 슛, 발리, 가슴 트래핑, 태클, 넘어짐, 헤딩, 세리머니/낙담, 숨 고르기, 키퍼 선방/던지기/펀트, 크로스, 몸으로 공 지키기, 세리머니 변형 등), `head.py`(머리/머리카락/수염)
 - 자세한 내용은 [blender/README.md](blender/README.md)
 
 ## 데이터
