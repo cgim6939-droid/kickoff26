@@ -133,7 +133,8 @@ export default function SoccerGame() {
       onOnline: (o) => {
         setOnline(o);
         if (o.phase === 'playing') { setResult(null); setPaused(false); setScreen('playing'); }
-        else if (o.phase === 'closed') setScreen(sc => (sc === 'playing' ? 'online-lost' : sc === 'waiting' || sc === 'join' ? 'online' : sc));
+        else if (o.phase === 'pick') setScreen('guestpick');
+        else if (o.phase === 'closed') setScreen(sc => (sc === 'playing' ? 'online-lost' : sc === 'waiting' || sc === 'join' || sc === 'guestpick' ? 'online' : sc));
       },
     });
     rtRef.current = rt;
@@ -223,6 +224,13 @@ export default function SoccerGame() {
         <OnlineJoin
           online={online}
           onJoin={(code) => { setOnline({ phase: 'joining' }); rtRef.current.joinOnline(code, { quality: opts.quality }); }}
+          onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }}
+        />
+      )}
+      {screen === 'guestpick' && online && online.phase !== 'playing' && (
+        <GuestPick
+          online={online}
+          onSubmit={(idx, lineup) => { rtRef.current.sendPick(idx, lineup); setOnline(o => ({ ...o, phase: 'ready' })); }}
           onCancel={() => { rtRef.current.closeNet(); setOnline(null); setScreen('online'); }}
         />
       )}
@@ -377,7 +385,7 @@ function OnlineWaiting({ online, onCancel }) {
           ? <><h2>{online.message}</h2><button className="fc-btn primary" onClick={onCancel}>돌아가기</button></>
           : <>
             <div className="room-code">{code || '· · · · ·'}</div>
-            <p>{code ? '친구에게 이 코드를 알려 주세요. 친구가 들어오면 바로 경기가 시작돼요.' : '방을 만드는 중…'}</p>
+            <p>{!code ? '방을 만드는 중…' : online.phase === 'lobby' ? '친구가 입장했어요! 친구가 자기 팀을 고르는 중이에요. 고르면 바로 경기가 시작돼요.' : '친구에게 이 코드를 알려 주세요. 친구가 들어와서 팀을 고르면 경기가 시작돼요.'}</p>
             <div className="online-actions">
               <button className="fc-btn primary" disabled={!code} onClick={copy}>{copied ? '복사됨 ✓' : '코드 복사'}</button>
               <button className="fc-btn" onClick={onCancel}>취소</button>
@@ -438,7 +446,7 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
   const [side, setSide] = useState(0);
   const setTeam = useCallback((s, idx) => {
     setOpts(o => {
-      if (idx === o.team[1 - s]) return o;
+      if (o.mode !== 'host' && idx === o.team[1 - s]) return o;
       const team = [...o.team]; team[s] = idx;
       return { ...o, team };
     });
@@ -447,7 +455,7 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
   const cycleTeam = useCallback((s, d) => {
     setOpts(o => {
       const lg = LEAGUES[leagueOf(o.team[s])];
-      const ids = lg.teams.map(t => clubIndex(t.short)).filter(i => i !== o.team[1 - s]);
+      const ids = lg.teams.map(t => clubIndex(t.short)).filter(i => o.mode === 'host' || i !== o.team[1 - s]);
       const cur = ids.indexOf(o.team[s]);
       const next = ids[(cur + d + ids.length) % ids.length];
       const team = [...o.team]; team[s] = next;
@@ -458,7 +466,7 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
   const cycleLeague = useCallback((s, d) => {
     setOpts(o => {
       let li = (leagueOf(o.team[s]) + d + LEAGUES.length) % LEAGUES.length;
-      const ids = LEAGUES[li].teams.map(t => clubIndex(t.short)).filter(i => i !== o.team[1 - s]);
+      const ids = LEAGUES[li].teams.map(t => clubIndex(t.short)).filter(i => o.mode === 'host' || i !== o.team[1 - s]);
       const team = [...o.team]; team[s] = ids[0];
       return { ...o, team };
     });
@@ -469,7 +477,7 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
       else if (e.key === 'ArrowRight') cycleTeam(side, 1);
       else if (e.key === 'ArrowUp') cycleLeague(side, -1);
       else if (e.key === 'ArrowDown') cycleLeague(side, 1);
-      else if (e.key === 'Tab') setSide(s => 1 - s);
+      else if (e.key === 'Tab') setSide(s => (opts.mode === 'host' ? 0 : 1 - s));
       else if (e.key === 'Enter') onNext();
       else if (e.key === 'Escape' || e.key === 'Backspace') onBack();
       else return;
@@ -482,7 +490,7 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
     <div className="fc-overlay teams-screen">
       <TopBar crumbs={['홈', modeName(opts.mode), '팀 선택']} />
       <div className="teams-wrap">
-        {[0, 1].map(s => s === 1 && opts.mode === 'cup' ? <CupInfo key="cup" /> : (
+        {[0, 1].map(s => s === 1 && opts.mode === 'cup' ? <CupInfo key="cup" /> : s === 1 && opts.mode === 'host' ? <FriendInfo key="friend" /> : (
           <TeamPanel
             key={s}
             side={s}
@@ -490,11 +498,11 @@ function TeamSelect({ opts, setOpts, onBack, onNext }) {
             label={s === 0 ? 'HOME' : 'AWAY'}
             controller={sideNames[s]}
             clubIdx={opts.team[s]}
-            otherIdx={opts.team[1 - s]}
+            otherIdx={opts.mode === 'host' ? -1 : opts.team[1 - s]}
             onActivate={() => setSide(s)}
             onCycle={(d) => cycleTeam(s, d)}
             onLeague={(li) => {
-              const ids = LEAGUES[li].teams.map(t => clubIndex(t.short)).filter(i => i !== opts.team[1 - s]);
+              const ids = LEAGUES[li].teams.map(t => clubIndex(t.short)).filter(i => opts.mode === 'host' || i !== opts.team[1 - s]);
               setTeam(s, ids[0]);
             }}
             onPick={(idx) => setTeam(s, idx)}
@@ -623,7 +631,7 @@ function TeamPanel({ side, active, label, controller, clubIdx, otherIdx, onActiv
 // ================= 라인업 편집 (포메이션 / 전술 / 선발 · 후보 교체) =================
 function LineupScreen({ opts, setOpts, onBack, onNext }) {
   const [side, setSide] = useState(0);
-  const sides = opts.mode === 'cup' ? [0] : [0, 1];
+  const sides = opts.mode === 'cup' || opts.mode === 'host' ? [0] : [0, 1];
   const sideNames = { '1p': ['1P', 'CPU'], '2p': ['1P', '2P'], cpu: ['CPU', 'CPU'], cup: ['1P'], host: ['나', '친구'] }[opts.mode] || ['HOME', 'AWAY'];
   const idx = opts.team[side];
   const setLineup = (clubIdx, v) => setOpts(o => ({ ...o, lineup: { ...(o.lineup || {}), [clubIdx]: v } }));
@@ -963,6 +971,90 @@ function Result({ result, onAgain, onMenu, cupRound, againLabel }) {
 }
 
 // ================= 컵 대회 =================
+function FriendInfo() {
+  return (
+    <div className="team-panel cup-info">
+      <div className="panel-head"><span className="side-tag">AWAY</span><span className="ctrl-tag">친구</span></div>
+      <div className="cup-info-body">
+        <div className="trophy">🎮</div>
+        <h3>친구가 직접 팀을 골라요</h3>
+        <p>방 코드를 받은 친구가 입장하면, 친구 화면에서 자기 팀(과 라인업)을 고를 수 있어요.</p>
+        <p>여기서는 내 팀과 라인업, 경기 설정만 정하세요.</p>
+      </div>
+    </div>
+  );
+}
+
+// 코드를 입력해 들어온 손님이 자기 팀(과 라인업)을 고르는 화면
+function GuestPick({ online, onSubmit, onCancel }) {
+  const hostIdx = online.hostTeam;
+  const host = CLUBS[hostIdx];
+  const [idx, setIdx] = useState(hostIdx === clubIndex('TOT') ? clubIndex('FCB') : clubIndex('TOT'));
+  const [lineups, setLineups] = useState({});
+  const [step, setStep] = useState(0);            // 0 팀 고르기, 1 라인업
+  const waiting = online.phase === 'ready';
+  const lineup = lineupOf({ lineup: lineups }, idx);
+  const free = (li) => LEAGUES[li].teams.map(t => clubIndex(t.short)).filter(i => i !== hostIdx);
+  const cycleTeam = (d) => { const ids = free(leagueOf(idx)); const cur = Math.max(0, ids.indexOf(idx)); setIdx(ids[(cur + d + ids.length) % ids.length]); };
+  const cycleLeague = (d) => { const li = (leagueOf(idx) + d + LEAGUES.length) % LEAGUES.length; setIdx(free(li)[0]); };
+  const submit = () => { if (!waiting) onSubmit(idx, lineups[idx] || null); };
+  useKeys((e) => {
+    if (waiting) { if (e.key === 'Escape') onCancel(); return; }
+    if (step === 0) {
+      if (e.key === 'ArrowLeft') cycleTeam(-1);
+      else if (e.key === 'ArrowRight') cycleTeam(1);
+      else if (e.key === 'ArrowUp') cycleLeague(-1);
+      else if (e.key === 'ArrowDown') cycleLeague(1);
+      else if (e.key === 'Enter') setStep(1);
+      else if (e.key === 'Escape') onCancel();
+      else return;
+    } else {
+      if (e.key === 'Enter') submit();
+      else if (e.key === 'Escape') setStep(0);
+      else return;
+    }
+    e.preventDefault();
+  });
+  const [ovr] = host.rating;
+  return (
+    <div className="fc-overlay teams-screen">
+      <TopBar crumbs={['홈', '멀티플레이', step === 0 ? '내 팀 고르기' : '라인업']} />
+      {step === 0 ? (
+        <div className="teams-wrap">
+          <div className="team-panel host-locked" style={{ '--league': '#334155', '--accent': '#94a3b8' }}>
+            <div className="panel-head"><span className="side-tag">HOST</span><span className="ctrl-tag">방장</span></div>
+            <div className="cup-info-body">
+              <Crest club={host} size={96} />
+              <h3>{host.name}</h3>
+              <p>OVR {ovr} · 방장이 고른 팀이에요</p>
+            </div>
+            <Lineup club={host} formation={lineupOf({ lineup: {} }, hostIdx).formation} style={lineupOf({ lineup: {} }, hostIdx).style} order={lineupOf({ lineup: {} }, hostIdx).order} mirror={false} />
+          </div>
+          <TeamPanel
+            side={1} active label="YOU · AWAY" controller="나"
+            clubIdx={idx} otherIdx={hostIdx}
+            onActivate={() => {}} onCycle={cycleTeam}
+            onLeague={(li) => setIdx(free(li)[0])} onPick={(i) => setIdx(i)}
+            lineup={lineup}
+          />
+          <div className="vs-badge">VS</div>
+        </div>
+      ) : (
+        <LineupEditor key={idx} club={CLUBS[idx]} value={lineup} onChange={(v) => setLineups(l => ({ ...l, [idx]: v }))} />
+      )}
+      <div className="bottom-actions">
+        <button className="fc-btn" onClick={step === 0 ? onCancel : () => setStep(0)}>{step === 0 ? '나가기' : '‹ 팀 선택'}</button>
+        {step === 0
+          ? <><button className="fc-btn" onClick={() => setStep(1)}>라인업 · 포메이션 편집</button>
+              <button className="fc-btn primary" onClick={submit} disabled={waiting}>{waiting ? '방장을 기다리는 중…' : '준비 완료 ›'}</button></>
+          : <button className="fc-btn primary" onClick={submit} disabled={waiting}>{waiting ? '방장을 기다리는 중…' : '준비 완료 ›'}</button>}
+      </div>
+      <FooterHints hints={step === 0 ? [['←→', '팀 변경'], ['↑↓', '리그 변경'], ['Enter', '라인업 편집'], ['Esc', '나가기']] : [['클릭', '선수 교체'], ['Enter', '준비 완료'], ['Esc', '팀 선택으로']]} />
+      {waiting && <div className="menu-toast">방장이 시작하길 기다리는 중이에요…</div>}
+    </div>
+  );
+}
+
 function CupInfo() {
   return (
     <div className="team-panel cup-info">
