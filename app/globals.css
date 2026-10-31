@@ -523,3 +523,17 @@ kbd {
 .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: dotp 1.2s ease-in-out infinite; }
 .dots i:nth-child(2) { animation-delay: .2s; } .dots i:nth-child(3) { animation-delay: .4s; }
 @keyframes dotp { 0%, 80%, 100% { opacity: .2; transform: scale(.7); } 40% { opacity: 1; transform: scale(1.1); } }
+
+/* 메인 메뉴 묶음 탭 */
+.group-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.group-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 9px 20px 10px 16px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: #cfd8e8; font-size: 18px; font-weight: 900; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.group-tabs button span { font-family: var(--display); font-style: italic; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+.group-tabs button:hover { background: rgba(255,255,255,0.09); transform: translateY(-1px); }
+.group-tabs button.on { background: linear-gradient(120deg, rgba(0,255,133,0.22), rgba(4,245,255,0.12)); border-color: var(--accent); color: #fff; box-shadow: 0 0 18px rgba(0,255,133,0.25); }
+.group-tabs button.on span { color: var(--accent); }
+.tiles.group-1 { grid-template-columns: minmax(300px, 1.6fr) 1fr 1fr; grid-template-rows: minmax(260px, 36vh); }
+.tiles.group-1 .tile.big { grid-row: auto; }
+.tiles.group-2 { grid-template-columns: 1.6fr 1fr; grid-template-rows: minmax(260px, 36vh); }
+.tiles.group-2 .tile.big { grid-row: auto; }
+.tiles.group-3 { grid-template-columns: 1.6fr 1fr 1fr; grid-template-rows: repeat(2, minmax(150px, 22vh)); }
+.tiles.group-3 .tile.big { grid-row: span 2; }

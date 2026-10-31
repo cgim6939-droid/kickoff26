@@ -25,13 +25,23 @@ function optionsOf(key, size) {
   return SETTINGS[key];
 }
 
-const MAIN_TILES = [
-  { id: '1p', title: '킥오프', en: 'KICK OFF', desc: 'AI 팀과 한 판 승부', big: true },
-  { id: 'cup', title: '컵 대회', en: 'CUP', desc: '8강 토너먼트 우승에 도전' },
-  { id: '2p', title: '로컬 대전', en: 'LOCAL MATCH', desc: '한 키보드로 친구와 대결' },
-  { id: 'multi', title: '멀티플레이', en: 'ONLINE', desc: '방 코드로 친구와 1대1', soon: true },
-  { id: 'cpu', title: '관전 모드', en: 'SPECTATE', desc: 'AI끼리 경기를 지켜보기' },
-  { id: 'controls', title: '조작법', en: 'CONTROLS', desc: '키 배치 보기' },
+// 메인 메뉴: 종류별로 묶어서 보여줌 (플레이 / 대회 / 온라인 / 도움말)
+const MAIN_GROUPS = [
+  { id: 'play', label: '플레이', en: 'PLAY', tiles: [
+    { id: '1p', title: '킥오프', en: 'KICK OFF', desc: 'AI 팀과 한 판 승부', big: true },
+    { id: '2p', title: '로컬 대전', en: 'LOCAL MATCH', desc: '한 키보드로 친구와 대결' },
+    { id: 'cpu', title: '관전 모드', en: 'SPECTATE', desc: 'AI끼리 경기를 지켜보기' },
+  ] },
+  { id: 'tour', label: '대회', en: 'TOURNAMENT', tiles: [
+    { id: 'cup', title: '컵 대회', en: 'CUP', desc: '8강 토너먼트 우승에 도전', big: true },
+  ] },
+  { id: 'online', label: '온라인', en: 'ONLINE', tiles: [
+    { id: 'host', title: '방 만들기', en: 'HOST', desc: '팀을 고르고 방 코드를 친구에게 알려 주세요', big: true, badge: 'ONLINE' },
+    { id: 'join', title: '코드로 참가', en: 'JOIN', desc: '친구가 알려 준 5자리 코드로 입장' },
+  ] },
+  { id: 'help', label: '도움말', en: 'HELP', tiles: [
+    { id: 'controls', title: '조작법', en: 'CONTROLS', desc: '키 배치와 전술 단축키 보기', big: true },
+  ] },
 ];
 
 const ROUND_NAMES = ['8강', '준결승', '결승'];
@@ -175,6 +185,8 @@ export default function SoccerGame() {
           onSelect={(id) => {
             if (id === 'controls') { setScreen('controls'); return; }
             if (id === 'multi') { setScreen('online'); return; }
+            if (id === 'host') { setOpts(o => ({ ...o, mode: 'host', size: '11' })); setScreen('teams'); return; }
+            if (id === 'join') { setOnline(null); setScreen('join'); return; }
             setOpts(o => ({ ...o, mode: id }));
             setScreen('teams');
           }}
@@ -271,21 +283,32 @@ function TitleScreen({ onStart }) {
 
 // ================= 메인 메뉴 =================
 function MainMenu({ onSelect }) {
-  const [focus, setFocus] = useState(0);
+  const [gi, setGi] = useState(0);        // 선택한 묶음
+  const [focus, setFocus] = useState(0);  // 묶음 안의 타일
+  const group = MAIN_GROUPS[gi];
+  const go = (n) => { setGi(n); setFocus(0); };
   useKeys((e) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { setFocus(f => (f + 1) % MAIN_TILES.length); e.preventDefault(); }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { setFocus(f => (f + MAIN_TILES.length - 1) % MAIN_TILES.length); e.preventDefault(); }
-      if (e.key === 'Enter' || e.key === ' ') { onSelect(MAIN_TILES[focus].id); e.preventDefault(); }
-    });
+    const n = group.tiles.length;
+    if (e.key === 'ArrowRight') { setFocus(f => (f + 1) % n); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { setFocus(f => (f + n - 1) % n); e.preventDefault(); }
+    else if (e.key === 'ArrowDown' || e.key === 'Tab') { go((gi + 1) % MAIN_GROUPS.length); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { go((gi + MAIN_GROUPS.length - 1) % MAIN_GROUPS.length); e.preventDefault(); }
+    else if (e.key === 'Enter' || e.key === ' ') { onSelect(group.tiles[focus].id); e.preventDefault(); }
+  });
   return (
     <div className="fc-overlay main">
-      <TopBar crumbs={['홈']} />
-      <div className="menu-hero" aria-hidden="true"><i className="ring r1" /><i className="ring r2" /><img src="/logo.svg" alt="" /><div className="hero-tag">SEASON 2025/26<b>29 CLUBS · 5 LEAGUES</b></div></div>
+      <TopBar crumbs={['홈', group.label]} />
+      <div className="menu-hero" aria-hidden="true"><i className="ring r1" /><i className="ring r2" /><img src="/logo.svg" alt="" /><div className="hero-tag">SEASON 2026/27<b>40 TEAMS · CLUBS · NATIONS · LEGENDS</b></div></div>
       <div className="main-wrap">
-        <div className="fc-eyebrow">PLAY</div>
-        <h1 className="fc-h1">플레이</h1>
-        <div className="tiles">
-          {MAIN_TILES.map((t, i) => (
+        <div className="group-tabs">
+          {MAIN_GROUPS.map((g, i) => (
+            <button key={g.id} className={i === gi ? 'on' : ''} onClick={() => go(i)}>
+              <span>{g.en}</span>{g.label}
+            </button>
+          ))}
+        </div>
+        <div className={`tiles group-${group.tiles.length}`} key={group.id}>
+          {group.tiles.map((t, i) => (
             <button
               key={t.id}
               className={`tile ${t.big ? 'big' : ''} ${focus === i ? 'focus' : ''}`}
@@ -296,12 +319,12 @@ function MainMenu({ onSelect }) {
               <span className="tile-title">{t.title}</span>
               <span className="tile-desc">{t.desc}</span>
               {t.big && <span className="tile-ball">⚽</span>}
-              {t.soon && <span className="tile-soon">ONLINE</span>}
+              {t.badge && <span className="tile-soon">{t.badge}</span>}
             </button>
           ))}
         </div>
       </div>
-      <FooterHints hints={[['←→', '이동'], ['Enter', '선택']]} />
+      <FooterHints hints={[['←→', '타일 이동'], ['↑↓ / Tab', '메뉴 묶음 전환'], ['Enter', '선택']]} />
     </div>
   );
 }
